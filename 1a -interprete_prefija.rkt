@@ -14,7 +14,7 @@
 ;;                      <prefija-exp (prim rands)>
 ;;                  ::= if <expresion> then <expresion> else <expresion>
 ;;                  ::= let (identifier = expression)* in expression
-;;  <primitive>     ::= + | - | * | / | add1 | sub1 
+;;  <primitibe>     ::= + | - | * | / | add1 | sub1 
 
 ;******************************************************************************************
 
