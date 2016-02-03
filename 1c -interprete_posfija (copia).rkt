@@ -10,11 +10,11 @@
 ;;                      <lit-exp (datum)>
 ;;                  ::= <identifier>
 ;;                      <var-exp (id)>
-;;                  ::= (<primitive> {<expression>}*( ))
-;;                      <primapp-exp (prim rands)>
+;;                  ::= ({<expression>}*( ) <primitive>)
+;;                      <posfija-exp (rands prim)>
 ;;                  ::= if <expresion> then <expresion> else <expresion>
 ;;                  ::= let (identifier = expression)* in expression
-;;  <primitive>     ::= + | - | * | add1 | sub1 
+;;  <primitive>     ::= + | - | * | / | add1 | sub1
 
 ;******************************************************************************************
 
@@ -42,7 +42,7 @@
     ;Notación posfija
     (expression
      ("("(separated-list expression " ") "  " primitive")")
-     primapp-exp)
+     posfija-exp)
    
     ; características adicionales
     (expression ("if" expression "then" expression "else" expression)
@@ -53,6 +53,7 @@
     (primitive ("+") add-prim)
     (primitive ("-") substract-prim)
     (primitive ("*") mult-prim)
+    (primitive ("/") div-prim)
     (primitive ("add1") incr-prim)
     (primitive ("sub1") decr-prim)))
 
@@ -151,7 +152,7 @@
     (cases expression exp
       (lit-exp (datum) datum)
       (var-exp (id) (apply-env env id))
-      (primapp-exp (rands prim)
+      (posfija-exp (rands prim)
                    (let ((args (eval-rands rands env)))
                      (apply-primitive prim args)))
       (if-exp (test-exp true-exp false-exp)
@@ -180,6 +181,7 @@
       (add-prim () (+ (car args) (cadr args)))
       (substract-prim () (- (car args) (cadr args)))
       (mult-prim () (* (car args) (cadr args)))
+      (div-prim () (/ (car args) (cadr args)))
       (incr-prim () (+ (car args) 1))
       (decr-prim () (- (car args) 1)))))
 
