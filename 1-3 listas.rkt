@@ -62,6 +62,7 @@
     (primitive ("cdr")    cdr-prim)
     (primitive ("empty-list") empty-list)
     (primitive ("null?") null-prim)
+    (primitive ("nth-list") nth-prim)
 
     ))
 
@@ -203,6 +204,13 @@
                    [(null? (car args)) "Lista vacía"]
                    [else "Lista no vacía"])
       )
+      (nth-prim()
+               (if (> (cadr args) (length (car args)))
+                   "error, el arreglo posee un numero menor de posiciones"
+                   (list-ref (car args) (cadr args))
+               )
+      )
+      
       )))
 
 ;true-value?: determina si un valor dado corresponde a un valor booleano falso o verdadero
