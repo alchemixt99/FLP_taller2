@@ -63,6 +63,7 @@
     (primitive ("empty-list") empty-list)
     (primitive ("null?") null-prim)
     (primitive ("nth-list") nth-prim)
+    (primitive ("element-list") element-prim)
 
     ))
 
@@ -210,6 +211,9 @@
                    (list-ref (car args) (cadr args))
                )
       )
+      (element-prim()
+                   (list-search (car args) (cadr args))
+      )
       
       )))
 
@@ -276,6 +280,19 @@
               (if (number? list-index-r)
                 (+ list-index-r 1)
                 #f))))))
+
+;;función auxiliar que permite buscar un elemento en una lista y retorna un booleano
+(define list-search
+  (lambda (ls arg)
+      (if (= 0 (length ls))
+          #f
+          (if (= (car ls) arg) #t
+              (list-search (cdr ls) arg))
+      )      
+  )
+)
+
+
 
 ;******************************************************************************************
 ;Pruebas
