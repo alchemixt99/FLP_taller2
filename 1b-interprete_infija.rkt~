@@ -10,11 +10,11 @@
 ;;                      <lit-exp (datum)>
 ;;                  ::= <identifier>
 ;;                      <var-exp (id)>
-;;                  ::= ({<expression>}*( ) <primitive>)
-;;                      <posfija-exp (rands prim)>
+;;                  ::= (<primitive> {<expression>}*( ))
+;;                      <primapp-exp (prim rands)>
 ;;                  ::= if <expresion> then <expresion> else <expresion>
 ;;                  ::= let (identifier = expression)* in expression
-;;  <primitive>     ::= + | - | * | / | add1 | sub1
+;;  <primitive>     ::= + | - | * | add1 | sub1 
 
 ;******************************************************************************************
 
@@ -41,8 +41,8 @@
     (expression (identifier) var-exp)
     ;Notación posfija
     (expression
-     ("("(separated-list expression " ") "  " primitive")")
-     posfija-exp)
+     ("(" expression primitive expression")")
+     primapp-exp)
    
     ; características adicionales
     (expression ("if" expression "then" expression "else" expression)
@@ -53,7 +53,6 @@
     (primitive ("+") add-prim)
     (primitive ("-") substract-prim)
     (primitive ("*") mult-prim)
-    (primitive ("/") div-prim)
     (primitive ("add1") incr-prim)
     (primitive ("sub1") decr-prim)))
 
@@ -152,8 +151,8 @@
     (cases expression exp
       (lit-exp (datum) datum)
       (var-exp (id) (apply-env env id))
-      (posfija-exp (rands prim)
-                   (let ((args (eval-rands rands env)))
+      (primapp-exp (var_a prim var_b)
+                   (let ((args (list(eval-expression var_a env) (eval-expression var_b env))))
                      (apply-primitive prim args)))
       (if-exp (test-exp true-exp false-exp)
               (if (true-value? (eval-expression test-exp env))
@@ -181,7 +180,6 @@
       (add-prim () (+ (car args) (cadr args)))
       (substract-prim () (- (car args) (cadr args)))
       (mult-prim () (* (car args) (cadr args)))
-      (div-prim () (/ (car args) (cadr args)))
       (incr-prim () (+ (car args) 1))
       (decr-prim () (- (car args) 1)))))
 

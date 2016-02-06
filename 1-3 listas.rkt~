@@ -10,11 +10,11 @@
 ;;                      <lit-exp (datum)>
 ;;                  ::= <identifier>
 ;;                      <var-exp (id)>
-;;                  ::= ({<expression>}*( ) <primitive>)
-;;                      <posfija-exp (rands prim)>
+;;                  ::= <primitive> ({<expression>}*(,))
+;;                      <primapp-exp (prim rands)>
 ;;                  ::= if <expresion> then <expresion> else <expresion>
 ;;                  ::= let (identifier = expression)* in expression
-;;  <primitive>     ::= + | - | * | / | add1 | sub1
+;;  <primitive>     ::= + | - | * | add1 | sub1 
 
 ;******************************************************************************************
 
@@ -39,10 +39,9 @@
   '((program (expression) a-program)
     (expression (number) lit-exp)
     (expression (identifier) var-exp)
-    ;Notación posfija
     (expression
-     ("("(separated-list expression " ") "  " primitive")")
-     posfija-exp)
+     (primitive "(" (separated-list expression ",")")")
+     primapp-exp)
    
     ; características adicionales
     (expression ("if" expression "then" expression "else" expression)
@@ -53,7 +52,6 @@
     (primitive ("+") add-prim)
     (primitive ("-") substract-prim)
     (primitive ("*") mult-prim)
-    (primitive ("/") div-prim)
     (primitive ("add1") incr-prim)
     (primitive ("sub1") decr-prim)))
 
@@ -152,7 +150,7 @@
     (cases expression exp
       (lit-exp (datum) datum)
       (var-exp (id) (apply-env env id))
-      (posfija-exp (rands prim)
+      (primapp-exp (prim rands)
                    (let ((args (eval-rands rands env)))
                      (apply-primitive prim args)))
       (if-exp (test-exp true-exp false-exp)
@@ -181,7 +179,6 @@
       (add-prim () (+ (car args) (cadr args)))
       (substract-prim () (- (car args) (cadr args)))
       (mult-prim () (* (car args) (cadr args)))
-      (div-prim () (/ (car args) (cadr args)))
       (incr-prim () (+ (car args) 1))
       (decr-prim () (- (car args) 1)))))
 
@@ -251,7 +248,37 @@
 ;******************************************************************************************
 ;Pruebas
 
-;(show-the-datatypes)
+(show-the-datatypes)
+just-scan
+scan&parse
+(just-scan "add1(x)")
+(just-scan "add1(   x   )%cccc")
+(just-scan "add1(  +(5, x)   )%cccc")
+(just-scan "add1(  +(5, %ccccc x) ")
+(scan&parse "add1(x)")
+(scan&parse "add1(   x   )%cccc")
+(scan&parse "add1(  +(5, x)   )%cccc")
+(scan&parse "add1(  +(5, %cccc
+x)) ")
+(scan&parse "if -(x,4) then +(y,11) else *(y,10)")
+(scan&parse "let
+x = -(y,1)
+in
+let
+x = +(x,2)
+in
+add1(x)")
 
-(interpretador)
-
+(define caso1 (primapp-exp (incr-prim) (list (lit-exp 5))))
+(define exp-numero (lit-exp 8))
+(define exp-ident (var-exp 'c))
+(define exp-app (primapp-exp (add-prim) (list exp-numero exp-ident)))
+(define programa (a-program exp-app))
+(define una-expresion-dificil (primapp-exp (mult-prim)
+                                           (list (primapp-exp (incr-prim)
+                                                              (list (var-exp 'v)
+                                                                    (var-exp 'y)))
+                                                 (var-exp 'x)
+                                                 (lit-exp 200))))
+(define un-programa-dificil
+    (a-program una-expresion-dificil))

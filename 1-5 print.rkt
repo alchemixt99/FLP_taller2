@@ -10,11 +10,13 @@
 ;;                      <lit-exp (datum)>
 ;;                  ::= <identifier>
 ;;                      <var-exp (id)>
-;;                  ::= ({<expression>}*( ) <primitive>)
-;;                      <posfija-exp (rands prim)>
+;;                  ::= <primitive> ({<expression>}*(,))
+;;                      <primapp-exp (prim rands)>
 ;;                  ::= if <expresion> then <expresion> else <expresion>
+;;                  ::= cond {Expression ==> Expression}* end
 ;;                  ::= let (identifier = expression)* in expression
-;;  <primitive>     ::= + | - | * | / | add1 | sub1
+;;                  ::= print (expression)
+;;  <primitive>     ::= + | - | * | add1 | sub1 
 
 ;******************************************************************************************
 
@@ -39,23 +41,39 @@
   '((program (expression) a-program)
     (expression (number) lit-exp)
     (expression (identifier) var-exp)
-    ;Notación posfija
     (expression
-     ("("(separated-list expression " ") "  " primitive")")
-     posfija-exp)
+     (primitive "(" (separated-list expression ",")")")
+     primapp-exp)
    
     ; características adicionales
     (expression ("if" expression "then" expression "else" expression)
                 if-exp)
+    ;;punto 1.4 del taller 2 FLP
+    (expression ("cond" expression "==>" expression (arbno expression "==>" expression) "end")
+                cond-exp)
+
+    ;;punto 1.5 del taller 2 de FLP
+    (expression ("print(" expression ")") print-exp)
+    
     (expression ("let" (arbno identifier "=" expression) "in" expression)
                 let-exp)
     ;;;;;;
     (primitive ("+") add-prim)
     (primitive ("-") substract-prim)
     (primitive ("*") mult-prim)
-    (primitive ("/") div-prim)
     (primitive ("add1") incr-prim)
-    (primitive ("sub1") decr-prim)))
+    (primitive ("sub1") decr-prim)
+    
+    ;============= LISTAS ===============
+    (primitive("list")   list-prim)
+    (primitive ("car")    car-prim)
+    (primitive ("cdr")    cdr-prim)
+    (primitive ("empty-list") empty-list)
+    (primitive ("null?") null-prim)
+    (primitive ("nth-list") nth-prim)
+    (primitive ("element-list") element-prim)
+
+    ))
 
 
 ;Tipos de datos para la sintaxis abstracta de la gramática
@@ -152,17 +170,39 @@
     (cases expression exp
       (lit-exp (datum) datum)
       (var-exp (id) (apply-env env id))
-      (posfija-exp (rands prim)
+      (primapp-exp (prim rands)
                    (let ((args (eval-rands rands env)))
                      (apply-primitive prim args)))
       (if-exp (test-exp true-exp false-exp)
               (if (true-value? (eval-expression test-exp env))
                   (eval-expression true-exp env)
                   (eval-expression false-exp env)))
+
+      ;;Punto 1.4 taller de FLP
+      (cond-exp (test-exp val-exp list-test list-val)
+                  (if (> 0 (eval-expression test-exp env))
+                  (eval-expression val-exp env)
+                  (if (true-value? (eval-expression (car list-test) env))
+                                   (eval-expression (car list-val) env)
+                                   (eval-expression (cond-exp test-exp val-exp (cdr list-test) (cdr list-val)) env)
+                  )
+                )
+      )
+      ;;Punto 1.5 taller de FLP
+      
+      (print-exp (arg)
+                 (begin
+                  (display (eval-expression arg env)) (newline)1)) 
+
+
+
+      
       (let-exp (ids rands body)
                (let ((args (eval-rands rands env)))
                  (eval-expression body
-                                  (extend-env ids args env)))))))
+                                  (extend-env ids args env))))
+
+      )))
 
 ; funciones auxiliares para aplicar eval-expression a cada elemento de una 
 ; lista de operandos (expresiones)
@@ -181,9 +221,29 @@
       (add-prim () (+ (car args) (cadr args)))
       (substract-prim () (- (car args) (cadr args)))
       (mult-prim () (* (car args) (cadr args)))
-      (div-prim () (/ (car args) (cadr args)))
       (incr-prim () (+ (car args) 1))
-      (decr-prim () (- (car args) 1)))))
+      (decr-prim () (- (car args) 1))
+      ;;=====================
+      (list-prim()  args)
+      (car-prim()  (caar args))
+      (cdr-prim()  (cdar args))
+      (empty-list() '())
+      (null-prim()
+                 (cond
+                   [(null? (car args)) "Lista vacía"]
+                   [else "Lista no vacía"])
+      )
+      (nth-prim()
+               (if (> (cadr args) (length (car args)))
+                   "error, el arreglo posee un numero menor de posiciones"
+                   (list-ref (car args) (cadr args))
+               )
+      )
+      (element-prim()
+                   (list-search (car args) (cadr args))
+      )
+      
+      )))
 
 ;true-value?: determina si un valor dado corresponde a un valor booleano falso o verdadero
 (define true-value?
@@ -191,6 +251,7 @@
     (not (zero? x))))
 
 ;*******************************************************************************************
+
 ;Ambientes
 
 ;definición del tipo de dato ambiente
@@ -248,10 +309,21 @@
                 (+ list-index-r 1)
                 #f))))))
 
+;;función auxiliar que permite buscar un elemento en una lista y retorna un booleano
+(define list-search
+  (lambda (ls arg)
+      (if (= 0 (length ls))
+          #f
+          (if (= (car ls) arg) #t
+              (list-search (cdr ls) arg))
+      )      
+  )
+)
+
+
+
 ;******************************************************************************************
 ;Pruebas
 
 ;(show-the-datatypes)
-
 (interpretador)
-

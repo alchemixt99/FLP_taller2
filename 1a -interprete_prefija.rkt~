@@ -10,11 +10,11 @@
 ;;                      <lit-exp (datum)>
 ;;                  ::= <identifier>
 ;;                      <var-exp (id)>
-;;                  ::= ({<expression>}*( ) <primitive>)
-;;                      <posfija-exp (rands prim)>
+;;                  ::= (<primitive> {<expression>}*( ))
+;;                      <prefija-exp (prim rands)>
 ;;                  ::= if <expresion> then <expresion> else <expresion>
 ;;                  ::= let (identifier = expression)* in expression
-;;  <primitive>     ::= + | - | * | / | add1 | sub1
+;;  <primitive>     ::= + | - | * | / | add1 | sub1 
 
 ;******************************************************************************************
 
@@ -39,10 +39,10 @@
   '((program (expression) a-program)
     (expression (number) lit-exp)
     (expression (identifier) var-exp)
-    ;Notación posfija
+    ;Notación prefija
     (expression
-     ("("(separated-list expression " ") "  " primitive")")
-     posfija-exp)
+     ( "(" primitive " "(separated-list expression " ")")")
+     prefija-exp)
    
     ; características adicionales
     (expression ("if" expression "then" expression "else" expression)
@@ -71,7 +71,7 @@
 ;   (datum number?))
 ;  (var-exp
 ;   (id symbol?))
-;  (primapp-exp
+;  (prefija-exp
 ;   (prim primitive?)
 ;   (rands (list-of expression?)))
 ;  (if-exp
@@ -87,6 +87,7 @@
 ;  (add-prim)
 ;  (substract-prim)
 ;  (mult-prim)
+;  (div-prim)
 ;  (incr-prim)
 ;  (decr-prim))
 
@@ -152,7 +153,7 @@
     (cases expression exp
       (lit-exp (datum) datum)
       (var-exp (id) (apply-env env id))
-      (posfija-exp (rands prim)
+      (prefija-exp (prim rands)
                    (let ((args (eval-rands rands env)))
                      (apply-primitive prim args)))
       (if-exp (test-exp true-exp false-exp)
@@ -251,7 +252,8 @@
 ;******************************************************************************************
 ;Pruebas
 
-;(show-the-datatypes)
+(show-the-datatypes)
+;(interpretador)
 
-(interpretador)
+
 
