@@ -58,16 +58,17 @@ Descripción del lenguaje LCD
 (define grammar-simple-interpreter
   '((program (chip) a-chip)
     #| ---------- Expresiones  -------------------|#
-    (chip (port) port-exp)
-    (chip (cable) cable-exp)
-    (chip (chip-prim) prim-chip )
-    (chip ((separated-list port " ") (separated-list port " ") circuito) comp_chip)
-    (circuito ((separated-list cable " ") (separated-list cable " ") chip) simple-circuit)
-    (circuito (circuito
-               (separated-list circuito " ")
-               (separated-list cable " ")
-               (separated-list cable " ")
-               )
+    (chip (port)
+          port-exp)
+    (chip (cable)
+          cable-exp)
+    (chip (chip-prim)
+          prim-chip )
+    (chip ((separated-list port " ") (separated-list port " ") circuito)
+          comp-chip)
+    (circuito ((separated-list cable " ") (separated-list cable " ") chip)
+              simple-circuit)
+    (circuito (circuito (separated-list circuito " ") (separated-list cable " ") (separated-list cable " "))
               complex-circuit)
     
     #| ---------- Primitivas  -------------------|#
@@ -81,42 +82,50 @@ Descripción del lenguaje LCD
     
    ))
    #| ---------- Datatypes  -------------------|#
+;#|
+(define-datatype program program? (a-chip (a-chip15 chip?)))
+ (define-datatype
+  chip
+  chip?
+  (port-exp (port-exp16 symbol?))
+  (cable-exp (cable-exp17 symbol?))
+  (prim-chip (prim-chip18 chip-prim?))
+  (comp_chip (comp_chip19 (list-of symbol?)) (comp_chip20 (list-of symbol?)) (comp_chip21 circuito?)))
+ (define-datatype
+  circuito
+  circuito?
+  (simple-circuit (simple-circuit22 (list-of symbol?)) (simple-circuit23 (list-of symbol?)) (simple-circuit24 chip?))
+  (complex-circuit
+   (complex-circuit25 circuito?)
+   (complex-circuit26 (list-of circuito?))
+   (complex-circuit27 (list-of symbol?))
+   (complex-circuit28 (list-of symbol?))))
+ (define-datatype chip-prim chip-prim? (chip-or) (chip-not) (chip-and) (chip-xor) (chip-nand) (chip-nor) (chip-xnor))
+;|#
 #|
-(define-datatype program program? (a-chip (a-chip11 chip?)))
-   (define-datatype
-     chip
-     chip?
-     (port-exp (port-exp12 symbol?))
-     (cable-exp (cable-exp13 symbol?))
-     (prim-chip (prim-chip14 chip-prim?))
-     (comp_chip (comp_chip15 (list-of symbol?)) (comp_chip16 (list-of symbol?)) (comp_chip17 circuito?)))
-
-   (define-datatype
-     circuito
-     circuito?
-     (simple-circuit (simple-circuit18 (list-of symbol?)) (simple-circuit19 (list-of symbol?)) (simple-circuit20 chip?)))
-
-   (define-datatype chip-prim chip-prim? (chip-or) (chip-not) (chip-and) (chip-xor) (chip-nand) (chip-nor) (chip-xnor))
-|#
    (sllgen:make-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)
 
    (define show-the-datatypes
      (lambda () (sllgen:list-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)))
-
+|#
 
 ;============== PRUEBAS ============================
 ;Sumador
 (define sumador (simple-circuit '(a b) '(e)  (prim-chip (chip-and))))
+
 ;complex-circuit
 ;#|
-(define test_complex
-  (complex-circuit
-  (simple-circuit '(a b) '(e) (prim-chip (chip-and)))
-  '((simple-circuit '(c d) '(f) (prim-chip (chip-and)))
-    (simple-circuit '(e f) '(g) (prim-chip (chip-or )))
-   )
+(define test_comp_chip
+  (comp_chip
+   '(INA INB INC IND)
+   '(OUTA)
+  (complex-circuit (simple-circuit '(a b) '(e) (prim-chip (chip-and))) 
+                   (list (simple-circuit '(c d) '(f) (prim-chip (chip-and)))
+                         (simple-circuit '(e f) '(g) (prim-chip (chip-or )))
+                   )   
   '(a b c d)
   '(g)
+  )
   )
 )
 ;|#
