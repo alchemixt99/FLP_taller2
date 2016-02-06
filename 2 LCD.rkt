@@ -8,7 +8,9 @@ Descripción del lenguaje LCD
                        (<-- {(port)}*)
                        <circuito>
                        <prim-chip(p chip)>
-               := crear_chip()
+               := crear_chip <circuito>
+                             (--> {(port)}*)
+                             (<-- {(port)}*)
                        <(crear_chip crc ipl opl)>
 
 <circuito>     := circ_simple ({cable}*)
@@ -68,6 +70,7 @@ Descripción del lenguaje LCD
           prim-chip )
     (chip ((separated-list port " ") (separated-list port " ") circuito)
           comp-chip)
+    ;(chip (chip-prim) crear_chip_prim)
     (circuito ((separated-list cable " ") (separated-list cable " ") chip)
               simple-circuit)
     (circuito (circuito (separated-list circuito " ") (separated-list cable " ") (separated-list cable " "))
@@ -83,8 +86,28 @@ Descripción del lenguaje LCD
     (chip-prim ("xnor") chip-xnor)
     
    ))
+;(crear_chip (simple-circuit '(a b) '(c) (prim-chip (chip-or))) '(INA INB) '(OUTC))
+(define crear_chip
+  (lambda (crc ipl opl)
+    (comp-chip ipl opl crc)
+  )
+)
+;(crear_chip_prim x) átomos:‘or, ‘and, ‘not, ‘xor, ‘nand, ‘nor, ‘xnor  
+(define crear_chip_prim
+  (lambda (x)
+    (cond
+    [(eqv? x 'or)(prim-chip (chip-or))]
+    [(eqv? x 'and)(prim-chip (chip-and))]
+    [(eqv? x 'not)(prim-chip (chip-not))]
+    [(eqv? x 'xor)(prim-chip (chip-xor))]
+    [(eqv? x 'nand)(prim-chip (chip-nand))]
+    [(eqv? x 'nor)(prim-chip (chip-nor))]
+    [(eqv? x 'xnor)(prim-chip (chip-xnor))]
+    )
+  )
+)  
    #| ---------- Datatypes  -------------------|#
-;#|
+#|
 (define-datatype program program? (a-chip (a-chip15 chip?)))
  (define-datatype
   chip
@@ -103,13 +126,13 @@ Descripción del lenguaje LCD
    (complex-circuit27 (list-of symbol?))
    (complex-circuit28 (list-of symbol?))))
  (define-datatype chip-prim chip-prim? (chip-or) (chip-not) (chip-and) (chip-xor) (chip-nand) (chip-nor) (chip-xnor))
-;|#
-#|
+|#
+;#|
    (sllgen:make-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)
 
    (define show-the-datatypes
      (lambda () (sllgen:list-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)))
-|#
+;|#
 
 ;============== PRUEBAS ============================
 ;Sumador
@@ -118,7 +141,7 @@ Descripción del lenguaje LCD
 ;complex-circuit
 ;#|
 (define test_comp_chip
-  (comp_chip
+  (comp-chip
    '(INA INB INC IND)
    '(OUTA)
   (complex-circuit (simple-circuit '(a b) '(e) (prim-chip (chip-and))) 
