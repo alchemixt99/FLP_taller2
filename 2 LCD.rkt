@@ -8,6 +8,8 @@ Descripción del lenguaje LCD
                        (<-- {(port)}*)
                        <circuito>
                        <prim-chip(p chip)>
+               := crear_chip()
+                       <(crear_chip crc ipl opl)>
 
 <circuito>     := circ_simple ({cable}*)
                               ({cable}*)
