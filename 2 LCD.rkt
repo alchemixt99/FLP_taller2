@@ -8,10 +8,6 @@ Descripción del lenguaje LCD
                        (<-- {(port)}*)
                        <circuito>
                        <prim-chip(p chip)>
-               := crear_chip <circuito>
-                             (--> {(port)}*)
-                             (<-- {(port)}*)
-                       <(crear_chip crc ipl opl)>
 
 <circuito>     := circ_simple ({cable}*)
                               ({cable}*)
@@ -70,7 +66,6 @@ Descripción del lenguaje LCD
           prim-chip )
     (chip ((separated-list port " ") (separated-list port " ") circuito)
           comp-chip)
-    ;(chip (chip-prim) crear_chip_prim)
     (circuito ((separated-list cable " ") (separated-list cable " ") chip)
               simple-circuit)
     (circuito (circuito (separated-list circuito " ") (separated-list cable " ") (separated-list cable " "))
@@ -105,7 +100,30 @@ Descripción del lenguaje LCD
     [(eqv? x 'xnor)(prim-chip (chip-xnor))]
     )
   )
-)  
+)
+;;(lcxs '(chip i o))
+
+(define lcxs
+  (lambda (ls)
+    (if(chip? (car (car ls)))
+       "es un chip"
+       "debe ingresar un chip en esta posición, ¿que le pasa?, ¿se quiere tirar flp o que?")
+    (if(list? (cadr (car ls)))
+       "si señor, es una lista"
+       "¿usted viene de banderas cierto?, por aquí no hay listas")
+    (if(list? (caddr (car ls)))
+       "si señor, también es una lista"
+       "¿usted viene de banderas cierto?, por aquí no hay listas")
+  )
+)
+
+;;(crear_circuito)
+(define crear_circuito
+  (lambda (lcxs icl ocl)
+    #t
+  )
+)
+
    #| ---------- Datatypes  -------------------|#
 #|
 (define-datatype program program? (a-chip (a-chip15 chip?)))
@@ -154,3 +172,8 @@ Descripción del lenguaje LCD
   )
 )
 ;|#
+
+;lcxs
+(define test_lcxs
+  (lcxs (list (list (comp-chip '(INA INB) '(OUTC) (simple-circuit '(a b) '(c) (prim-chip (chip-and)))) '(y z) '(x))))
+)
