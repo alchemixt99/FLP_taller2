@@ -10,8 +10,8 @@
 ;;                      <lit-exp (datum)>
 ;;                  ::= <identifier>
 ;;                      <var-exp (id)>
-;;                  ::= ({<expression>}*( ) <primitive>)
-;;                      <posfija-exp (rands prim)>
+;;                  ::= (<expression> <primitive> <expression>)
+;;                      <infija-exp (var_1 exp var_2)>
 ;;                  ::= if <expresion> then <expresion> else <expresion>
 ;;                  ::= let (identifier = expression)* in expression
 ;;  <primitive>     ::= + | - | * | / | add1 | sub1
@@ -41,8 +41,8 @@
     (expression (identifier) var-exp)
     ;Notación posfija
     (expression
-     ("("(separated-list expression " ") "  " primitive")")
-     posfija-exp)
+     ("("expression primitive expression")")
+     infija-exp)
    
     ; características adicionales
     (expression ("if" expression "then" expression "else" expression)
@@ -152,8 +152,8 @@
     (cases expression exp
       (lit-exp (datum) datum)
       (var-exp (id) (apply-env env id))
-      (posfija-exp (rands prim)
-                   (let ((args (eval-rands rands env)))
+      (infija-exp (var_a prim var_b)
+                   (let ((args (list(eval-expression var_a env) (eval-expression var_b env))))
                      (apply-primitive prim args)))
       (if-exp (test-exp true-exp false-exp)
               (if (true-value? (eval-expression test-exp env))
