@@ -205,7 +205,7 @@ Descripción del lenguaje LCD
       (comp-chip
        '(INE INF)
        '(OUTA)
-       (simple-circuit '(a f) '(g) (prim-chip (chip-or)))
+       (simple-circuit '(e f) '(g) (prim-chip (chip-or)))
       )
       '(e f)
       '(z)
@@ -213,6 +213,6 @@ Descripción del lenguaje LCD
     )
   )
 (define icl '(m n o p))
-(define ocl '(o p))
+(define ocl '(z))
 
 (crear_circuito lcxs icl ocl)
