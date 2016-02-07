@@ -71,7 +71,7 @@ Descripción del lenguaje LCD
     (circuito (circuito (separated-list circuito " ") (separated-list cable " ") (separated-list cable " "))
               complex-circuit)
     
-    #| ---------- Primitivas  -------------------|#
+    #| ---------- Primitivas (Compuertas)  -------------------|#
     (chip-prim ("or") chip-or)
     (chip-prim ("not") chip-not)
     (chip-prim ("and") chip-and)
@@ -103,7 +103,7 @@ Descripción del lenguaje LCD
 )
 ;;(lcxs '(chip i o))
 
-(define lcxs
+#|(define lcxs
   (lambda (ls)
     (if(chip? (car (car ls)))
        "es un chip"
@@ -115,12 +115,21 @@ Descripción del lenguaje LCD
        "si señor, también es una lista"
        "¿usted viene de banderas cierto?, por aquí no hay listas")
   )
-)
+)|#
 
-;;(crear_circuito)
+;;(crear_circuito lcxs icl ocl)
 (define crear_circuito
   (lambda (lcxs icl ocl)
-    #t
+    (if(chip? (car (car lcxs)))
+       (complex-circuit
+         (simple-circuit (cadr (car lcxs)) (caddr (car lcxs)) (car (car lcxs)))
+         (list
+           (simple-circuit (cadr (cadr lcxs)) (caddr (cadr lcxs)) (car (cadr lcxs)))       
+         )
+         icl
+         ocl
+       )
+       "debe ingresar un chip en esta posición, ¿que le pasa?, ¿se quiere tirar flp o que?")
   )
 )
 
@@ -173,7 +182,37 @@ Descripción del lenguaje LCD
 )
 ;|#
 
-;lcxs
-(define test_lcxs
-  (lcxs (list (list (comp-chip '(INA INB) '(OUTC) (simple-circuit '(a b) '(c) (prim-chip (chip-and)))) '(y z) '(x))))
-)
+;Prueba lcxs
+(define lcxs
+  (list
+    (list
+      (comp-chip
+       '(INA INB INC IND)
+       '(OUTE OUTF)
+       (complex-circuit
+          (simple-circuit '(a b) '(e) (prim-chip (chip-and)))
+             (list
+                (simple-circuit '(c d) '(f) (prim-chip (chip-and)))
+              )
+             '(a b c d)
+             '(e f)
+       )
+      )
+      '(m n o p)
+      '(e f)
+     )
+    (list
+      (comp-chip
+       '(INE INF)
+       '(OUTA)
+       (simple-circuit '(a f) '(g) (prim-chip (chip-or)))
+      )
+      '(e f)
+      '(z)
+     )
+    )
+  )
+(define icl '(m n o p))
+(define ocl '(o p))
+
+(crear_circuito lcxs icl ocl)
