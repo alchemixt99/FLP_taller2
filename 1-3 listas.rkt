@@ -1,4 +1,11 @@
 #lang eopl
+#| INTEGRANTES
+
+Jhon Erik Avila Ortiz          - 1210209
+Brayan Lara Vargas             - 1510322
+Sebastian Guacheta Salazar     - 0938596
+
+|#
 ;******************************************************************************************
 ;;;;; Interpretador para lenguaje con condicionales y ligadura local
 
@@ -72,6 +79,28 @@
 
 ;Construidos manualmente:
 
+(define-datatype program program? (a-program (a-program12 expression?)))
+ (define-datatype expression expression?
+  (lit-exp (lit-exp number?))
+  (var-exp (var-exp symbol?))
+  (primapp-exp (primapp-prim primitive?) (primapp-exp (list-of expression?)))
+  (if-exp (test-exp expression?) (true-exp expression?) (false-exp expression?))
+  (let-exp (id-exp (list-of symbol?)) (body-exp (list-of expression?)) (evl-exp expression?)))
+
+ (define-datatype primitive primitive?
+  (add-prim)
+  (substract-prim)
+  (mult-prim)
+  (incr-prim)
+  (decr-prim)
+  (list-prim)
+  (car-prim)
+  (cdr-prim)
+  (empty-list)
+  (null-prim)
+  (nth-prim)
+  (element-prim))
+
 ;(define-datatype program program?
 ;  (a-program
 ;   (exp expression?)))
@@ -101,11 +130,6 @@
 ;  (decr-prim))
 
 ;Construidos automáticamente:
-
-(sllgen:make-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)
-
-(define show-the-datatypes
-  (lambda () (sllgen:list-define-datatypes scanner-spec-simple-interpreter grammar-simple-interpreter)))
 
 ;*******************************************************************************************
 ;Parser, Scanner, Interfaz
