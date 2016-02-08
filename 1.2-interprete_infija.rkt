@@ -67,7 +67,7 @@ Sebastian Guacheta Salazar     - 0938596
 
 ;Tipos de datos para la sintaxis abstracta de la gramática
 
-;Construidos manualmente:
+;Datatypes:
 
 (define-datatype program program? (a-program (a-program13 expression?)))
  (define-datatype expression expression?
@@ -84,35 +84,7 @@ Sebastian Guacheta Salazar     - 0938596
    (div-prim)
    (incr-prim)
    (decr-prim))
-;(define-datatype program program?
-;  (a-program
-;   (exp expression?)))
-;
-;(define-datatype expression expression?
-;  (lit-exp
-;   (datum number?))
-;  (var-exp
-;   (id symbol?))
-;  (primapp-exp
-;   (prim primitive?)
-;   (rands (list-of expression?)))
-;  (if-exp
-;   (test-exp expression?)
-;   (true-exp expression?)
-;   (false-exp expression?))
-;  (let-exp
-;   (ids (list-of symbol?))
-;   (rans (list-of expression?))
-;   (body expression?)))
-;
-;(define-datatype primitive primitive?
-;  (add-prim)
-;  (substract-prim)
-;  (mult-prim)
-;  (incr-prim)
-;  (decr-prim))
 
-;Construidos automáticamente:
 
 ;*******************************************************************************************
 ;Parser, Scanner, Interfaz

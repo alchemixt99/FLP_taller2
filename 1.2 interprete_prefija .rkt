@@ -67,7 +67,7 @@ Sebastian Guacheta Salazar     - 0938596
 
 ;Tipos de datos para la sintaxis abstracta de la gramática
 
-;Construidos manualmente:
+;Datatypes:
 
 (define-datatype program program? (a-program (a-program expression?)))
  (define-datatype expression expression?
